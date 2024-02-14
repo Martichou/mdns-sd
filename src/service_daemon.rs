@@ -263,6 +263,11 @@ impl ServiceDaemon {
         Ok(resp_r)
     }
 
+    /// Re-broadcast a service already provided by this host.
+    pub fn register_resend(&self, fullname: &str) -> Result<()> {
+        self.send_cmd(Command::RegisterResend(fullname.to_lowercase()))
+    }
+
     /// Starts to monitor events from the daemon.
     ///
     /// Returns a channel [`Receiver`] of [`DaemonEvent`].
