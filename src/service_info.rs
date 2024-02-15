@@ -14,6 +14,13 @@ use std::{
 const DNS_HOST_TTL: u32 = 120; // 2 minutes for host records (A, SRV etc) per RFC6762
 const DNS_OTHER_TTL: u32 = 4500; // 75 minutes for non-host records (PTR, TXT etc) per RFC6762
 
+#[derive(Debug, Clone, PartialEq)]
+pub enum AddrType {
+    V4,
+    V6,
+    BOTH,
+}
+
 /// Complete info about a Service Instance.
 ///
 /// We can construct some PTR, one SRV and one TXT record from this info,
@@ -35,7 +42,7 @@ pub struct ServiceInfo {
     priority: u16,
     weight: u16,
     txt_properties: TxtProperties,
-    addr_auto: bool, // Let the system update addresses automatically.
+    addr_auto: Option<AddrType>, // Let the system update addresses automatically.
 }
 
 impl ServiceInfo {
@@ -118,7 +125,7 @@ impl ServiceInfo {
             priority: 0,
             weight: 0,
             txt_properties,
-            addr_auto: false,
+            addr_auto: None,
         };
 
         Ok(this)
@@ -127,15 +134,15 @@ impl ServiceInfo {
     /// Indicates that the library should automatically
     /// update the addresses of this service, when IP
     /// address(es) are added or removed on the host.
-    pub fn enable_addr_auto(mut self) -> Self {
-        self.addr_auto = true;
+    pub fn enable_addr_auto(mut self, addr_type: AddrType) -> Self {
+        self.addr_auto = Some(addr_type);
         self
     }
 
     /// Returns if the service's addresses will be updated
     /// automatically when the host IP addrs change.
     pub fn is_addr_auto(&self) -> bool {
-        self.addr_auto
+        self.addr_auto.is_some()
     }
 
     /// Returns the service type including the domain label.
@@ -270,6 +277,16 @@ impl ServiceInfo {
 
     /// Insert `addr` into service info addresses.
     pub(crate) fn insert_ipaddr(&mut self, addr: IpAddr) {
+        if let Some(ty) = &self.addr_auto {
+            let ok = match (addr.is_ipv4(), addr.is_ipv6()) {
+                (true, false) => ty == &AddrType::V4 || ty == &AddrType::BOTH,
+                (false, true) => ty == &AddrType::V6 || ty == &AddrType::BOTH,
+                _ => false,
+            };
+            if !ok {
+                return;
+            }
+        }
         self.addresses.insert(addr);
     }
 

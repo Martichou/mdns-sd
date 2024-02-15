@@ -134,7 +134,9 @@ pub use service_daemon::{
     DaemonEvent, DaemonStatus, IfKind, Metrics, ServiceDaemon, ServiceEvent, UnregisterStatus,
     SERVICE_NAME_LEN_MAX_DEFAULT,
 };
-pub use service_info::{AsIpAddrs, IntoTxtProperties, ServiceInfo, TxtProperties, TxtProperty};
+pub use service_info::{
+    AddrType, AsIpAddrs, IntoTxtProperties, ServiceInfo, TxtProperties, TxtProperty,
+};
 
 /// A handler to receive messages from [ServiceDaemon]. Re-export from `flume` crate.
 pub use flume::Receiver;

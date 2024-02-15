@@ -2292,8 +2292,9 @@ mod tests {
         valid_instance_name, IntfSock, ServiceDaemon, ServiceEvent, ServiceInfo, GROUP_ADDR_V4,
         MDNS_PORT,
     };
-    use crate::dns_parser::{
-        DnsOutgoing, DnsPointer, CLASS_IN, FLAGS_AA, FLAGS_QR_RESPONSE, TYPE_PTR,
+    use crate::{
+        dns_parser::{DnsOutgoing, DnsPointer, CLASS_IN, FLAGS_AA, FLAGS_QR_RESPONSE, TYPE_PTR},
+        service_info::AddrType,
     };
     use std::{net::SocketAddr, net::SocketAddrV4, time::Duration};
 
@@ -2333,7 +2334,7 @@ mod tests {
         let my_service =
             ServiceInfo::new(service, "my_instance", host_name, &intf_ips[..], port, None)
                 .expect("invalid service info")
-                .enable_addr_auto();
+                .enable_addr_auto(AddrType::BOTH);
         let result = d.register(my_service.clone());
         assert!(result.is_ok());
 

@@ -1,7 +1,7 @@
 use if_addrs::{IfAddr, Interface};
 use mdns_sd::{
-    DaemonEvent, DaemonStatus, IfKind, IntoTxtProperties, ServiceDaemon, ServiceEvent, ServiceInfo,
-    UnregisterStatus,
+    AddrType, DaemonEvent, DaemonStatus, IfKind, IntoTxtProperties, ServiceDaemon, ServiceEvent,
+    ServiceInfo, UnregisterStatus,
 };
 use std::collections::{HashMap, HashSet};
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
@@ -385,7 +385,7 @@ fn service_txt_properties_case_insensitive() {
 
     let my_service = ServiceInfo::new(domain, &instance_name, host_name, "", port, &properties[..])
         .expect("valid service info")
-        .enable_addr_auto();
+        .enable_addr_auto(AddrType::BOTH);
     let props = my_service.get_properties();
     assert_eq!(props.len(), 2);
 
@@ -470,7 +470,7 @@ fn service_with_named_interface_only() {
         None,
     )
     .expect("invalid service info")
-    .enable_addr_auto();
+    .enable_addr_auto(AddrType::BOTH);
 
     d.register(my_service).unwrap();
 
@@ -570,7 +570,7 @@ fn service_with_ipv4_only() {
         None,
     )
     .expect("invalid service info")
-    .enable_addr_auto();
+    .enable_addr_auto(AddrType::BOTH);
     let result = d.register(my_service);
     assert!(result.is_ok());
 
@@ -804,7 +804,7 @@ fn service_name_check() {
         None,
     )
     .expect("valid service info")
-    .enable_addr_auto();
+    .enable_addr_auto(AddrType::BOTH);
     let result = server_daemon.register(my_service.clone());
     assert!(result.is_ok());
 
@@ -852,7 +852,7 @@ fn service_new_publish_after_browser() {
         &txt_properties[..],
     )
     .expect("valid service info")
-    .enable_addr_auto();
+    .enable_addr_auto(AddrType::BOTH);
 
     // Second, publish a service.
     let result = daemon.register(service_info);
@@ -912,7 +912,7 @@ fn instance_name_two_dots() {
         None,
     )
     .expect("valid service info")
-    .enable_addr_auto();
+    .enable_addr_auto(AddrType::BOTH);
     let result = server_daemon.register(my_service.clone());
     assert!(result.is_ok());
 
